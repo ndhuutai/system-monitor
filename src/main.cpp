@@ -3,6 +3,7 @@
 
 int main() {
   System system;
-  system.MemoryUtilization();
+  // system.MemoryUtilization();
+  system.UpTime();
   // NCursesDisplay::Display(system);
 }
