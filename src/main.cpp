@@ -3,5 +3,6 @@
 
 int main() {
   System system;
-  NCursesDisplay::Display(system);
+  system.MemoryUtilization();
+  // NCursesDisplay::Display(system);
 }

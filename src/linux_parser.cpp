@@ -3,7 +3,10 @@
 #include <string>
 #include <vector>
 
-#include "linux_parser.h"
+#include <iostream>
+#include <iomanip>
+
+#include "../include/linux_parser.h"
 
 using std::stof;
 using std::string;
@@ -22,9 +25,12 @@ string LinuxParser::OperatingSystem() {
       std::replace(line.begin(), line.end(), '=', ' ');
       std::replace(line.begin(), line.end(), '"', ' ');
       std::istringstream linestream(line);
+      // std::cout<<line<<"ending"<< std::endl;
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
           std::replace(value.begin(), value.end(), '_', ' ');
+          // std::cout<<value << std::endl;
+          // std::cout<<key<<std::endl;
           return value;
         }
       }
@@ -67,7 +73,36 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+float LinuxParser::MemoryUtilization() {
+  std::string line, key;
+  float value, memTotal, memFree;
+  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::replace(line.begin(), line.end(), ':', ' ');
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == "MemTotal") {
+          // std::replace(value.begin(), value.end(), '_', ' ');
+          std::cout<< std::setprecision(0) << std::fixed;
+          memTotal = value;
+        }
+        if(key == "MemFree") {
+          std::cout<< std::setprecision(0) << std::fixed;
+          memFree = value;
+ 
+          //we got memTotal and memFree, we no longer need to process line
+
+          return memTotal - memFree;
+        }
+      }
+    }
+  }
+
+  //would be 0.0 if reading file failed.
+  return value;
+}
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() { return 0; }
