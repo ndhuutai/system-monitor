@@ -115,10 +115,55 @@ long LinuxParser::UpTime() {
     linestream >> upTime;
     return upTime;
   }
+
+  return upTime;
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+long LinuxParser::Jiffies() { 
+  string line, cpuName;
+
+  long user,
+  nice,
+  system,
+  idle,
+  iowait,
+  irq,
+  softIrq,
+  steal,
+  guest,
+  guest_nice;
+  
+  long usertime, 
+  nicetime, 
+  idlealltime, 
+  systemalltime, 
+  virtalltime,
+  totaltime;
+
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+
+  //only getting the first line for aggregate cpu jiffies
+  if(filestream) {
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    linestream>> cpuName >> user >> nice >> system >> idle
+    >> iowait >> irq >> softIrq>> steal >> guest >> guest_nice;
+  }
+
+  usertime = user - guest;
+  nicetime= nice - guest_nice;
+
+  idlealltime = idle + iowait;
+  systemalltime = system + irq + softIrq;
+
+  virtalltime = guest + guest_nice;
+
+  totaltime = usertime + nicetime + systemalltime
+  + steal + virtalltime;
+
+  return totaltime;
+}
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
